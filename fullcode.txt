@@ -1,0 +1,129 @@
+
+---
+
+## 📄 fullcode.txt (all files in one block)
+
+```txt
+// ===== BACKEND: server.js =====
+const express = require("express");
+const cors = require("cors");
+
+const app = express();
+app.use(cors());
+
+const products = [
+  { id: 1, name: "Laptop", price: 1200 },
+  { id: 2, name: "Mouse", price: 25 },
+  { id: 3, name: "Keyboard", price: 45 },
+];
+
+app.get("/api/products", (req, res) => {
+  res.json(products);
+});
+
+const PORT = 5000;
+app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
+
+// ===== FRONTEND: package.json =====
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "axios": "^1.6.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build"
+  }
+}
+
+// ===== FRONTEND: src/index.js =====
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import "./index.css";
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+
+// ===== FRONTEND: src/App.js =====
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import "./App.css";
+
+function App() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/api/products")
+      .then((response) => {
+        setProducts(response.data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Failed to fetch products");
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <h2>Loading...</h2>;
+  if (error) return <h2 style={{ color: "red" }}>{error}</h2>;
+
+  return (
+    <div className="container">
+      <h1>Product List</h1>
+      <div className="products">
+        {products.map((p) => (
+          <div className="card" key={p.id}>
+            <h3>{p.name}</h3>
+            <p>${p.price}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default App;
+
+// ===== FRONTEND: src/App.css =====
+.container {
+  text-align: center;
+  padding: 20px;
+  font-family: Georgia, serif;
+}
+
+.products {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.card {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  width: 150px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+}
+
+h1 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+// ===== FRONTEND: src/index.css =====
+body {
+  background-color: #f8f8f8;
+  margin: 0;
+  padding: 0;
+}
